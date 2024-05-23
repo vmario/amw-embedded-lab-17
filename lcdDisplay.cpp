@@ -42,6 +42,12 @@ void LcdDisplay::write(const char* text) const
 	};
 }
 
+void LcdDisplay::clear() const
+{
+	bus.instructionWrite(CLEAR_DISPLAY);
+	_delay_ms(1.52);
+}
+
 void LcdDisplay::goTo(uint8_t line, uint8_t column) const
 {
 	bus.instructionWrite(SET_DDRAM_ADDRESS | ((line * 0x40 + column) & 0x7f));
