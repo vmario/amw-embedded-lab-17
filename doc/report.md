@@ -1,5 +1,5 @@
 ---
-title: "Ćwiczenie 16: Wielokanałowy ADC sterowany maszyną stanów"
+title: "Ćwiczenie 17: Przechowywanie danych użytkownika w pamięci EEPROM"
 author: [Mariusz Chilmon <<mariusz.chilmon@ctm.gdynia.pl>>]
 lang: "pl"
 titlepage: no
@@ -37,18 +37,34 @@ _W trosce o Państwa wyniki proszę o czytelne wpisywanie nazwisk._
 
 ## Zadanie podstawowe
 
-Oblicz okres Timera 1 w trybie zwykłym (_Normal Mode_), pamiętając, że mikrokontroler taktowany jest zegarem 16&nbsp;MHz, a Timer 1 jest timerem 16-bitowym.
+Jaki jest rozmiar pamięci EEPROM dostępnej w mikrokontrolerze ATmega328P?
 
-\vspace{3.5cm}
+\vspace{1.5cm}
 
-Ile pomiarów na sekundę wykonuje ADC taktowany tym timerem?
+Ile cyklów zapisu/czyszczenia jest gwarantowane dla pamięci Flash, a ile dla pamięci EEPROM w&nbsp;mikrokontrolerze ATmega328P?
 
-\vspace{3.5cm}
+\vspace{1.5cm}
+
+Jaka jest gwarantowana retencja danych w pamięciach nieulotnych w temperaturze pokojowej, a jaka w temperaturze 85&deg;C?
+
+\vspace{1.5cm}
+
+\awesomebox[violet]{2pt}{\faBook}{violet}{Odpowiedzi na powyższe pytania znajdziesz na pierwszej stronie dokumentacji mikrokontrolera.}
 
 ## Zadanie rozszerzone
 
-Oblicz czas trwania pomiaru ADC — pierwszego po uruchomieniu ADC oraz kolejnych.
-
-\awesomebox[violet]{2pt}{\faBook}{violet}{Szczegóły odnośnie taktowania ADC można znaleźć w rozdziale \textit{Analog-to-Digital Converter} w sekcji \textit{Prescaling and Conversion Timing} dokumentacji mikrokontrolera.}
+Ile zajmuje zapis jednego bajtu w pamięci EEPROM?
 
 \vspace{1.5cm}
+
+Ile zajmie zapis całej dostępnej pamięci EEPROM?
+
+\vspace{1.5cm}
+
+\awesomebox[violet]{2pt}{\faBook}{violet}{Stałe czasowe przedstawione są w tabeli \textit{EEPROM Programming Time} w rozdziale \textit{AVR Memories} dokumentacji mikrokontrolera.}
+
+## \faCertificate&nbsp; Zadanie specjalne
+
+_+1 pkt dla osoby, która jako pierwsza poda poprawną odpowiedź._
+
+Czym się różni operacja czyszczenia i zapisu komórki pamięci EEPROM? Po co sterownik EEPROM przewiduje rozdzielenie tych operacji?
