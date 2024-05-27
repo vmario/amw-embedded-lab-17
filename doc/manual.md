@@ -40,7 +40,7 @@ header-includes: |
 
 Celem ćwiczenia jest zapoznanie się z:
 
-* obsługą pamięci EEPROM za pomocą biblioteki \texttt{libc},
+* obsługą pamięci EEPROM za pomocą biblioteki \texttt{avr-libc},
 * obsługą pamięci EEPROM za pomocą bezpośrednich operacji na rejestrach.
 
 # Uruchomienie programu wyjściowego
@@ -57,7 +57,7 @@ Program wyjściowy symuluje termostat, który włącza grzałkę po obniżeniu t
 
 Zadaniem histerezy jest zmniejszenie częstotliwości przełączania elementu wykonawczego, kosztem zmniejszenia precyzji regulowanego parametru.
 
-W naszym przypadku, gdy mierzona temperatura oscyluje wokół temperatury zadanej $T_t$ np. z powodu ruchu powietrza w pomieszczeniu albo szumu pomiarowego, może dojść do sytuacji, gdy element wykonywaczy byłby przełączany w bardzo krótkich odcinkach czasu. Jest to zjawisko, które może być szkodliwe dla elementu sterującego (np. w przekaźniku może dojść do wypalenia styków), jak i dla elementu wykonawczego (np. kompresor w lodówce może ulec szybkiemu zużyciu).
+W naszym przypadku, gdy mierzona temperatura oscyluje wokół temperatury zadanej $T_t$ np. z powodu ruchu powietrza w pomieszczeniu albo szumu pomiarowego, może dojść do sytuacji, gdy element wykonywaczy byłby przełączany w bardzo krótkich odcinkach czasu. Jest to zjawisko, które może być szkodliwe dla elementu sterującego (np. w przekaźniku może dojść do wypalenia styków), jak i dla elementu wykonawczego (np. kompresor w chłodziarce może ulec szybkiemu zużyciu).
 
 Histereza zazwyczaj jest jednym z parametrów, które są dostępne dla użytkownika jako nastawa, co pozwala mu ustalić kompromis między precyzją sterowania a częstotliwością przełączania.
 
@@ -77,17 +77,19 @@ Celem zadania podstawowego jest zapisywanie nastaw urządzenia w pamięci nieulo
 
 1. Po wyjściu z edycji nastaw ustawione wartości zapisywane są w pamięci EEPROM mikrokontrolera.
 1. Po zresetowaniu mikrokontrolera wczytywana jest zapamiętana temperatura.
-1. Urządzenie wykrywa niezainicjalizowaną pamięć i używa wówczas domyślnych nastaw.
+1. Po wyczyszczeniu pamięci przyciskiem _RIGHT_ urządzenie wykrywa niezainicjalizowaną pamięć i&nbsp;używa domyślnych nastaw.
 
 ## Modyfikacja programu
 
-### Zapis nastaw
+### Zapis i odczyt nastaw
 
 Uzupełnij metodę `Thermostat::save()` tak, by zapisywała obie nastawy w pamięci EEPROM pod adresami `EEPROM_ADDRESS_TARGET` i `EEPROM_ADDRESS_HYSTERESIS`.
 
-### Odczyt nastaw
-
 Uzupełnij metodę `Thermostat::restore()` tak, by odczytywała obie nastawy w pamięci EEPROM pod adresami `EEPROM_ADDRESS_TARGET` i `EEPROM_ADDRESS_HYSTERESIS`. Odczyt odbywa się automatycznie przy inicjalizacji urządzenia.
+
+\awesomebox[teal]{2pt}{\faCode}{teal}{W pliku nagłówkowym \lstinline{avr/eeprom.h} zadeklarowane są funkcje obsługujące pamięć EEPROM. Należy zauważyć, że zamiast funkcji z grupy \lstinline{eeprom_write_XXX()} warto użyć funkcji \lstinline{eeprom_update_XXX()}, które dokonują zapisu tylko, gdy nowa wartość różni się od poprzedniej.}
+
+\awesomebox[violet]{2pt}{\faBook}{violet}{Dokumentację wspomnianych funkcji można znaleźć na stronie projektu \textit{avr-libc}.}
 
 ### Rozpoznanie niezainicjalizowanej pamięci
 
@@ -104,7 +106,7 @@ Po wciśnięciu przycisku _RIGHT_ uruchamiana jest procedura czyszczenia pamięc
 
 \awesomebox[teal]{2pt}{\faCode}{teal}{Liczba zmiennoprzecinkowa, w której wszystkie bity wykładnika są ustawione (co ma miejsce w wyczyszczonej pamięci EEPROM), nie jest poprawną wartością, ale \textit{nie-liczbą} (ang. \textit{NaN} — \textit{Not a Number}).}
 
-Wartość `NaN` można wykryć za pomocą makra \lstinline{isnan()} zdefiniowanego w bibliotece \lstinline{math.h}. Po wykryciu takiej wartości należy użyć wartości domyślnych dla nastaw: `TARGET_DEFAULT` i&nbsp;`HYSTERESIS_DEFAULT`.
+Wartość `NaN` można wykryć za pomocą makra \lstinline{isnan()} zdefiniowanego w bibliotece \lstinline{math.h}. Po wykryciu takiej wartości w EEPROM należy użyć wartości domyślnych dla nastaw: `TARGET_DEFAULT` i&nbsp;`HYSTERESIS_DEFAULT`.
 
 # Zadanie rozszerzone
 
@@ -126,20 +128,20 @@ float eeprom_read_float(const float* address)
 
 \awesomebox[violet]{2pt}{\faBook}{violet}{Przykłady procedur odczytu i zapisu do EEPROM znajdziesz w opisie rejestru \texttt{EECR} (\textit{EEPROM Control Register}) w dokumentacji mikrokontrolera.}
 
+\awesomebox[teal]{2pt}{\faCode}{teal}{Argument funkcji jest typu \lstinline{const float*}, gdyż jest to adres w pamięci (wskaźnik). Aby operować na nim jak na liczbie 16-bitowej, w szczególności móc wpisać do pary rejestrów EEAR, można rzutować go na typ \lstinline{uint16_t} za pomocą operatora rzutowania \lstinline{reinterpret_cast<uint16_t>(address)}.}
+
 Zwróć uwagę, że należy odczytać liczbę bajtów równą rozmiarowi typu `float`. W tym celu możesz zdefiniować tablicę, do której w pętli przepiszesz kolejne bajty z EEPROM:
 
 ```
 uint8_t buffer[sizeof(float)];
 ```
 
-Bufor można przepisać do zmiennej typu `float` za pomocą funkcji `memcpy()` z biblioteki `string.h`:
+Bufor można przepisać do zmiennej typu `float` za pomocą funkcji `memcpy()` z biblioteki standardowej `string.h`:
 
 ```
 float value;
 memcpy(&value, buffer, sizeof(float));
 ```
-
-\awesomebox[teal]{2pt}{\faCode}{teal}{Argument funkcji jest typu \lstinline{const float*}, gdyż jest adresem w pamięci, a więc wskaźnikiem. Aby operować na nim jak na liczbie 16-bitowej, w szczególności móc wpisać do pary rejestrów EEAR, można rzutować go na typ \lstinline{uint16_t} za pomocą \lstinline{reinterpret_cast<uint16_t>(address)}.}
 
 ### Implementacja odczytu wartości `float` z EEPROM
 
